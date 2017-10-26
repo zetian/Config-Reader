@@ -1,2 +1,2 @@
-# configurator_cpp
-A simple configurator for c++
+# Configurator_cpp
+A simple configuration file handler for c++. 
