@@ -1,12 +1,10 @@
-#ifndef __CONFIGURATOR_H__
-#define __CONFIGURATOR_H__
-
 #include <iostream>
 #include <map>
 #include <string>
 #include <fstream>
+// #include <algorithm>
 
-class Configurator{
+class ConfigReader{
     //---------------------------------------------------------------------------
     // The configurator is a simple map string (key, value) pairs.
     // The file is stored as a simple listing of those pairs, one per line.
@@ -17,13 +15,13 @@ class Configurator{
     // Notice that the configuration file format does not permit values to span
     // more than one line, commentary at the end of a line, or [section]s.
 public:
-    Configurator(){};
-    Configurator(std::string filename){
+    ConfigReader(){}
+    ConfigReader(std::string filename){
         std::ifstream ifs(filename, std::ifstream::in);
         ifs >> *this;
         ifs.close();
-    };
-    ~Configurator(){};
+    }
+    ~ConfigReader(){}
 
 private:
     std::map <std::string, std::string> data_;
@@ -41,10 +39,37 @@ public:
         return default_value;
     }
 
+    std::string Get(std::string name, std::string default_value){
+        if (data_.count(name)){
+            return data_[name];
+        }
+        else{
+            std::cout << "Failed to load data ''" << name << "''" << std::endl;
+            return default_value;
+        }
+    }
+
+    bool GetBoolean(std::string name, bool default_value){
+        std::string valstr = Get(name, "");
+        // Convert to lower case to make string comparisons case-insensitive
+        std::transform(valstr.begin(), valstr.end(), valstr.begin(), ::tolower);
+        if (valstr == "true" || valstr == "yes" || valstr == "on" || valstr == "1"){
+            return true;
+        }
+        else if (valstr == "false" || valstr == "no" || valstr == "off" || valstr == "0"){
+            return false;
+        }
+        else{
+            std::cout << "Failed to load data ''" << name << "''" << std::endl;
+            return default_value;
+        } 
+    }
+
+
     //---------------------------------------------------------------------------
-    // The extraction operator reads configurator until EOF.
+    // The extraction operator reads configuration until EOF.
     // Invalid data is ignored.
-    friend std::istream& operator >> (std::istream& ins, Configurator& configurator){
+    friend std::istream& operator >> (std::istream& ins, ConfigReader& config_reader){
         std::string s, key, value;
         
         // For each (key, value) pair in the file
@@ -73,20 +98,18 @@ public:
             value = s.substr(begin, end - begin);
     
             // Insert the properly extracted (key, value) pair into the map
-            configurator.data_[key] = value;
+            config_reader.data_[key] = value;
         }
         return ins;
     };
 
     //---------------------------------------------------------------------------
-    // The insertion operator writes all configurator data to stream.
-    friend std::ostream& operator << (std::ostream& outs, const Configurator& configurator){
+    // The insertion operator writes all config_reader data to stream.
+    friend std::ostream& operator << (std::ostream& outs, const ConfigReader& config_reader){
         std::map<std::string, std::string>::const_iterator iter;
-        for (iter = configurator.data_.begin(); iter != configurator.data_.end(); iter++){
+        for (iter = config_reader.data_.begin(); iter != config_reader.data_.end(); iter++){
             std::cout << iter->first << " = " << iter->second << std::endl;
         }
         return outs;
     };
 };
-
-#endif  // __CONFIGURATOR_H__
