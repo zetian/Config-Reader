@@ -1,10 +1,14 @@
+#ifndef __CONFIGURATOR_H__
+#define __CONFIGURATOR_H__
+
 #include <iostream>
 #include <map>
 #include <string>
+#include <fstream>
 
 class Configurator{
     //---------------------------------------------------------------------------
-    // The configurator::data is a simple map string (key, value) pairs.
+    // The configurator is a simple map string (key, value) pairs.
     // The file is stored as a simple listing of those pairs, one per line.
     // The key is separated from the value by an equal sign '='.
     // Commentary begins with the first non-space character on the line a hash or
@@ -14,8 +18,14 @@ class Configurator{
     // more than one line, commentary at the end of a line, or [section]s.
 public:
     Configurator(){};
+    Configurator(std::string filename){
+        std::ifstream ifs(filename, std::ifstream::in);
+        ifs >> *this;
+        ifs.close();
+    };
     ~Configurator(){};
 
+private:
     std::map <std::string, std::string> data_;
     // struct data: std::map <std::string, std::string>
     // {
@@ -29,6 +39,16 @@ public:
     //     }
     // };
 public:
+    std::map <std::string, std::string> GetAllData(){
+        return data_;
+    }
+    double GetReal(std::string name, double default_value){
+        std::string valstr = data_[name];
+        return default_value;
+    }
+
+
+
     friend std::istream& operator >> (std::istream& ins, Configurator& configurator){
         std::string s, key, value;
         
@@ -63,7 +83,7 @@ public:
         return ins;
     };
 
-    friend std::ostream& operator << (std::ostream& outs, Configurator& configurator){
+    friend std::ostream& operator << (std::ostream& outs, const Configurator& configurator){
         std::map<std::string, std::string>::const_iterator iter;
         for (iter = configurator.data_.begin(); iter != configurator.data_.end(); iter++){
             std::cout << iter->first << " = " << iter->second << std::endl;
@@ -119,3 +139,5 @@ public:
     //     return outs;
     // }
 };
+
+#endif  // __CONFIGURATOR_H__
