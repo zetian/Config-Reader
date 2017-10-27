@@ -2,7 +2,7 @@
 #include <map>
 #include <string>
 #include <fstream>
-// #include <algorithm>
+#include <algorithm>
 
 class ConfigReader{
     //---------------------------------------------------------------------------
@@ -13,7 +13,7 @@ class ConfigReader{
     // semi-colon ('#' or ';').
     //
     // Notice that the configuration file format does not permit values to span
-    // more than one line, commentary at the end of a line, or [section]s.
+    // more than one line, commentary at the end of a line. 
 public:
     ConfigReader(){}
     ConfigReader(std::string filename){
@@ -25,18 +25,9 @@ public:
 
 private:
     std::map <std::string, std::string> data_;
-    // struct data: std::map <std::string, std::string>
-    // {
-    //     bool iskey(const std::string& s) const{
-    //         return count(s) != 0;
-    //     }
 public:
     std::map <std::string, std::string> GetAllData(){
         return data_;
-    }
-    double GetReal(std::string name, double default_value){
-        std::string valstr = data_[name];
-        return default_value;
     }
 
     std::string Get(std::string name, std::string default_value){
@@ -46,6 +37,32 @@ public:
         else{
             std::cout << "Failed to load data ''" << name << "''" << std::endl;
             return default_value;
+        }
+    }
+
+    double GetReal(std::string name, double default_value){
+        std::string valstr = Get(name, "");
+        char* end = 0;
+        double val = strtod(valstr.c_str(), &end);
+        if (end > valstr.c_str() && val != HUGE_VAL){
+            return val;
+        }
+        else{
+            std::cout << "Failed to load data ''" << name << "''" << std::endl;
+            return default_value; 
+        }
+    }
+
+    int GetInteger(std::string name, int default_value){
+        std::string valstr = Get(name, "");
+        char* end = 0;
+        int val = strtol(valstr.c_str(), &end, 0);
+        if (end != valstr.c_str() && val != HUGE_VAL){
+            return val;
+        }
+        else{
+            std::cout << "Failed to load data ''" << name << "''" << std::endl;
+            return default_value; 
         }
     }
 
