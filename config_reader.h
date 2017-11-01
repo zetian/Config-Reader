@@ -1,3 +1,8 @@
+// Copyright 2017, Zetian Zhang
+
+#ifndef CONFIG_READER_H
+#define CONFIG_READER_H
+
 #include <iostream>
 #include <map>
 #include <string>
@@ -153,3 +158,5 @@ public:
         return outs;
     };
 };
+
+#endif // CONFIG_READER_H
